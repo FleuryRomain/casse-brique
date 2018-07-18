@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <title>Casse-Birque</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script type="text/javascript" src="script.js"></script>
+    </head>
+    <body>
+        <canvas id="canvas" width="480" height="320"></canvas>
+    </body>
+
+    <script>
+        // get div canvas 
+        var canvas = document.getElementById("canvas");
+        // context stock 2d
+        var ctx = canvas.getContext("2d");
+        
+        // define axe in canvas
+        var x = canvas.width/2;
+        var y = canvas.height-30;
+
+        // define mouvement ball
+        var dx = 2;
+        var dy = -2;
+        
+        // Bounce of the walls
+        var ballRadius = 10;
+
+        // draw ball 
+        function drawBall(){
+            ctx.beginPath();
+            ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+        function draw(){
+            // delete trace 
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            drawBall();
+            // top/bot wall
+            if(y + dy > canvas.height-ballRadius || y + dy < ballRadius){
+                dy = -dy;
+            }    
+            // left/right wall
+            if(x + dx > canvas.width-ballRadius || x + dx < ballRadius){
+                dx = -dx;
+            }
+            x += dx;
+            y += dy;
+        }
+
+        // execute draw every 10ms
+        setInterval(draw,10);
+
+    </script>
+
+    
+</html> 
