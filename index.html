@@ -26,6 +26,70 @@
         // Bounce of the walls
         var ballRadius = 10;
 
+        // paddle height
+        var paddleHeight = 10;
+        // paddle width
+        var paddleWidth = 75;
+        // start on X axe
+        var paddleX = (canvas.width-paddleWidth)/2;
+
+        // commad paddle 
+        var rightButtton = false;
+        var leftButton = false;
+
+        // brick caracteristic
+        var brickRow = 3;
+        var brickColumn = 5;
+        var brickWidth = 75;
+        var brickHeight = 20;
+        var brickPadding = 10;
+        var brickOffsetTop = 30;
+        var brickOffsetLeft = 30;
+
+        var bricks = [];
+        for(var i=0; i<brickColumn; i++){
+            bricks[i] = [];
+            for(var j=0;j<brickRow;j++){
+                bricks[i][j] = {x: 0, y: 0, status: 1};
+            }
+        }
+
+
+        // listen press button 
+        document.addEventListener("keydown", keyDown, false);
+        document.addEventListener("keyup", keyUp, false);
+        
+        function keyDown(e) {
+            if(e.keyCode == 39) {
+                rightButtton = true;
+            }
+            else if(e.keyCode == 37) {
+                leftButton = true;
+            }
+        }
+        function keyUp(e) {
+            if(e.keyCode == 39) {
+                rightButtton = false;
+            }
+            else if(e.keyCode == 37) {
+                leftButton = false;
+            }
+        }
+
+        function collisionDetection() {
+            for (var c = 0; c < brickColumn; c++) {
+                for (var r = 0; r < brickRow; r++) {
+                    var b = bricks[c][r];
+                    if (b.status == 1) {
+                        if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
+                            dy = -dy;
+                            b.status = 0;
+                        }
+                    }
+                }
+            }
+        }
+
         // draw ball 
         function drawBall(){
             ctx.beginPath();
@@ -34,21 +98,77 @@
             ctx.fill();
             ctx.closePath();
         }
+
+        // draw paddle
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // draw bricks
+        function drawBricks(){
+            for(var i=0; i<brickColumn; i++){
+                for(var j=0;j<brickRow; j++){
+                    // paint brick in different x/y
+                    if(bricks[i][j].status == 1){
+                        var brickX = (i * (brickWidth + brickPadding)) + brickOffsetLeft;
+                        var brickY = (j * (brickHeight + brickPadding)) + brickOffsetTop
+                        bricks[i][j].x = brickX;
+                        bricks[i][j].y = brickY;
+                        ctx.beginPath();
+                        ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                        ctx.fillStyle = "#0095DD";
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+
         function draw(){
             // delete trace 
             ctx.clearRect(0,0, canvas.width, canvas.height);
+            drawBricks();
             drawBall();
-            // top/bot wall
-            if(y + dy > canvas.height-ballRadius || y + dy < ballRadius){
-                dy = -dy;
-            }    
+            drawPaddle();
+            collisionDetection();
+
             // left/right wall
             if(x + dx > canvas.width-ballRadius || x + dx < ballRadius){
                 dx = -dx;
             }
+            // top/bot wall
+            if(y + dy < ballRadius) {
+                dy = -dy;
+            } else if(y + dy > canvas.height-ballRadius) {
+                //check center of the ball is between the left and right edges of the paddle
+                if(x > paddleX && x < paddleX + paddleWidth) {
+                    dy = -dy;
+                }
+                else {
+                    alert("Perdu :(");
+                    document.location.reload();
+                }
+            }
+         
+             
+            
+            if(rightButtton && paddleX < canvas.width-paddleWidth) {
+                paddleX += 5;
+            }
+            else if(leftButton && paddleX > 0) {
+                paddleX -= 5;
+            }
+            
             x += dx;
-            y += dy;
+            y += dy; 
+                   
         }
+        
+
 
         // execute draw every 10ms
         setInterval(draw,10);
